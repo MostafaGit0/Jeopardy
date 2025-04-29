@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stock Market Jeopardy</title>
+  <style>
+    body {
+      background-color: #001f3f;
+      color: #fff;
+      font-family: 'Arial Black', Gadget, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+
+    .cell {
+      background-color: #0074D9;
+      padding: 30px 10px;
+      font-size: 24px;
+      cursor: pointer;
+      border: 2px solid #fff;
+    }
+
+    .header {
+      background-color: #001f3f;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .fullScreenCard {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #0074D9;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 36px;
+      z-index: 999;
+    }
+
+    #teams {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin: 20px 0;
+    }
+
+    .team {
+      background: #0074D9;
+      padding: 20px;
+      border-radius: 10px;
+      min-width: 150px;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #FFDC00;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background-color: #FF851B;
+    }
+
+    #awardButtons {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .edit-btn {
+      margin-top: 10px;
+      background-color: #39CCCC;
+    }
+
+    .edit-btn:hover {
+      background-color: #3D9970;
+    }
+
+    #timer {
+      margin-top: 20px;
+      font-size: 24px;
+    }
+
+    #timerButtons {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Stock Market Jeopardy</h1>
+
+  <div class="board" id="board"></div>
+
+  <div id="card" class="fullScreenCard" style="display: none;" onclick="handleCardClick()">
+    <div id="cardText"></div>
+  </div>
+
+  <script>
+    const categories = [
+      "Buying Stocks",
+      "Stock Market",
+      "Types of Orders",
+      "Mutual Funds",
+      "Bonds",
+      "500 Questions"
+    ];
+
+    const questions = {
+      "Buying Stocks": {
+        100: { q: "What do you need access to in order to buy stocks?", a: "Stock Exchange" },
+        200: { q: "What do you open to start buying stocks?", a: "Brokerage Account" },
+        300: { q: "What is the term for a company's stock name shortcut?", a: "Ticker Symbol" },
+        400: { q: "Who matches your stock order on the exchange?", a: "Broker" },
+        500: { q: "After your order matches, what happens?", a: "You own the stock" }
+      },
+      "Stock Market": {
+        100: { q: "What is a place where stocks are bought and sold?", a: "Stock Exchange" },
+        200: { q: "What are two major stock exchanges?", a: "NYSE, NASDAQ" },
+        300: { q: "When more people want to buy a stock, what happens to the price?", a: "It goes up" },
+        400: { q: "Name one risk of investing in stocks.", a: "Market Volatility" },
+        500: { q: "Name a reason why people invest in the stock market.", a: "Wealth Growth, Passive Income, Beating Inflation" }
+      },
+      "Types of Orders": {
+        100: { q: "What order type buys/sells at the best available price?", a: "Market Order" },
+        200: { q: "What order type only buys/sells at a set price or better?", a: "Limit Order" },
+        300: { q: "What order sells automatically at a certain price to prevent losses?", a: "Stop Order" },
+        400: { q: "What influences stock prices?", a: "Company performance, economy, sentiment" },
+        500: { q: "What is it called when you panic and sell at a loss?", a: "Emotional Investing" }
+      },
+      "Mutual Funds": {
+        100: { q: "Are you buying one stock or many in a mutual fund?", a: "Many" },
+        200: { q: "What do many people do with their money in a mutual fund?", a: "Pool it together" },
+        300: { q: "Who manages the mutual fund's investments?", a: "Professional Manager" },
+        400: { q: "What is a mutual fund compared to, for easy understanding?", a: "A buffet" },
+        500: { q: "What types of investments might a mutual fund include?", a: "Stocks, bonds, etc." }
+      },
+      "Bonds": {
+        100: { q: "What is a bond essentially?", a: "A loan" },
+        200: { q: "Who might you loan money to with a bond?", a: "Government or Company" },
+        300: { q: "What do you earn when you buy a bond?", a: "Interest" },
+        400: { q: "When do you get your money back from a bond?", a: "After a set period" },
+        500: { q: "What risk is involved with bonds?", a: "Interest" }
+      },
+      "500 Questions": {
+        500: { q: "Explain the main difference between a Market Order and a Limit Order.", a: "Market Order buys/sells immediately at best price; Limit Order sets a specific price." },
+        501: { q: "What emotional mistake do investors often make during a market drop?", a: "They panic and sell at a loss." },
+        502: { q: "Describe what a bond is and who typically issues them.", a: "A bond is a loan to a government or company that pays back interest over time." },
+        503: { q: "If investors panic and sell a stock all at once, what usually happens to the stock's price?", a: "It drops." },
+        504: { q: "What are two reasons investors might choose mutual funds instead of individual stocks?", a: "Diversification and professional management." }
+      }
+    };
+
+    let currentPoints = 0;
+    let showingAnswer = false;
+    let currentCell = null;
+    let timerInterval;
+
+    function createBoard() {
+        const board = document.getElementById('board');
+        categories.forEach(cat => {
+            const header = document.createElement('div');
+            header.className = 'cell header';
+            header.innerText = cat;
+            board.appendChild(header);
+        });
+
+        for (let row = 0; row < 5; row++) {
+            categories.forEach(cat => {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+
+            if (cat === "500 Questions") {
+                cell.innerText = "500";
+                const questionKey = 500 + row; // row 0 -> 500, row 1 -> 501, etc
+                cell.onclick = () => showQuestion(cell, cat, questionKey);
+            } else {
+                const points = (row + 1) * 100;
+                cell.innerText = points;
+                cell.onclick = () => showQuestion(cell, cat, points);
+            }
+
+            board.appendChild(cell);
+            });
+        }
+    }
+
+
+    let currentQ = "";
+    let currentA = "";
+
+    function showQuestion(cell, category, points) {
+      clearInterval(timerInterval);
+      currentCell = cell;
+      const qObj = questions[category][points] || { q: "Question not found", a: "" };
+      currentQ = qObj.q;
+      currentA = qObj.a;
+      document.getElementById('cardText').innerText = currentQ;
+      document.getElementById('card').style.display = 'flex';
+      showingAnswer = false;
+      currentPoints = 500;
+      document.getElementById('awardButtons').style.display = 'none';
+      startTimer();
+    }
+
+    function handleCardClick() {
+      if (!showingAnswer) {
+        document.getElementById('cardText').innerText = currentA;
+        showingAnswer = true;
+        clearInterval(timerInterval);
+        document.getElementById('timer').innerText = "";
+      }
+      else {
+        document.getElementById('card').style.display = 'none';
+        if (currentCell) {
+          currentCell.innerText = "";
+          currentCell.onclick = null;
+        }
+      }
+    }
+
+
+    createBoard();
+  </script>
+
+</body>
+</html>
