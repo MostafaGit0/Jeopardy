@@ -27,6 +27,7 @@
       font-size: 24px;
       cursor: pointer;
       border: 2px solid #fff;
+      position: relative;
     }
 
     .header {
@@ -49,6 +50,19 @@
       align-items: center;
       font-size: 36px;
       z-index: 999;
+    }
+
+    .reveal-btn {
+      font-size: 14px;
+      padding: 5px 10px;
+      background-color: #FFDC00;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .reveal-btn:hover {
+      background-color: #FF851B;
     }
 
     #teams {
@@ -171,71 +185,81 @@
     let currentPoints = 0;
     let showingAnswer = false;
     let currentCell = null;
-    let timerInterval;
+    let currentCategory = null;
+    let currentKey = null;
 
     function createBoard() {
-        const board = document.getElementById('board');
+      const board = document.getElementById('board');
+      categories.forEach(cat => {
+        const header = document.createElement('div');
+        header.className = 'cell header';
+        header.innerText = cat;
+        board.appendChild(header);
+      });
+
+      for (let row = 0; row < 5; row++) {
         categories.forEach(cat => {
-            const header = document.createElement('div');
-            header.className = 'cell header';
-            header.innerText = cat;
-            board.appendChild(header);
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+
+          if (cat === "500 Questions") {
+            const questionKey = 500 + row;
+            cell.innerText = "500";
+            cell.onclick = () => showQuestion(cell, cat, questionKey);
+          } else {
+            const points = (row + 1) * 100;
+            cell.innerText = points;
+            cell.onclick = () => showQuestion(cell, cat, points);
+          }
+
+          board.appendChild(cell);
         });
-
-        for (let row = 0; row < 5; row++) {
-            categories.forEach(cat => {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-
-            if (cat === "500 Questions") {
-                cell.innerText = "500";
-                const questionKey = 500 + row; // row 0 -> 500, row 1 -> 501, etc
-                cell.onclick = () => showQuestion(cell, cat, questionKey);
-            } else {
-                const points = (row + 1) * 100;
-                cell.innerText = points;
-                cell.onclick = () => showQuestion(cell, cat, points);
-            }
-
-            board.appendChild(cell);
-            });
-        }
+      }
     }
 
-
-    let currentQ = "";
-    let currentA = "";
-
-    function showQuestion(cell, category, points) {
-      clearInterval(timerInterval);
+    function showQuestion(cell, category, key) {
+      const qObj = questions[category][key] || { q: "Question not found", a: "" };
       currentCell = cell;
-      const qObj = questions[category][points] || { q: "Question not found", a: "" };
+      currentCategory = category;
+      currentKey = key;
       currentQ = qObj.q;
       currentA = qObj.a;
+      showingAnswer = false;
       document.getElementById('cardText').innerText = currentQ;
       document.getElementById('card').style.display = 'flex';
-      showingAnswer = false;
-      currentPoints = 500;
-      document.getElementById('awardButtons').style.display = 'none';
-      startTimer();
     }
 
     function handleCardClick() {
       if (!showingAnswer) {
         document.getElementById('cardText').innerText = currentA;
         showingAnswer = true;
-        clearInterval(timerInterval);
-        document.getElementById('timer').innerText = "";
-      }
-      else {
+      } else {
         document.getElementById('card').style.display = 'none';
         if (currentCell) {
-          currentCell.innerText = "";
+          currentCell.innerHTML = "";
           currentCell.onclick = null;
+
+          const wrapper = document.createElement("div");
+          wrapper.style.display = "flex";
+          wrapper.style.justifyContent = "center";
+          wrapper.style.alignItems = "center";
+          wrapper.style.height = "100%";
+
+          const revealBtn = document.createElement("button");
+          revealBtn.className = "reveal-btn";
+          revealBtn.innerText = "Reveal";
+          revealBtn.onclick = (e) => {
+            e.stopPropagation();
+            document.getElementById("cardText").innerText =
+              questions[currentCategory][currentKey].q + "\n\nAnswer: " + questions[currentCategory][currentKey].a;
+            document.getElementById("card").style.display = "flex";
+          };
+
+          wrapper.appendChild(revealBtn);
+          currentCell.appendChild(wrapper);
         }
       }
     }
-
 
     createBoard();
   </script>
