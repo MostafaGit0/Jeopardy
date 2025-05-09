@@ -1,268 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Stock Market Jeopardy</title>
-  <style>
-    body {
-      background-color: #001f3f;
-      color: #fff;
-      font-family: 'Arial Black', Gadget, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    .board {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 5px;
-      margin: 20px auto;
-      max-width: 1200px;
-    }
-
-    .cell {
-      background-color: #0074D9;
-      padding: 30px 10px;
-      font-size: 24px;
-      cursor: pointer;
-      border: 2px solid #fff;
-      position: relative;
-    }
-
-    .header {
-      background-color: #001f3f;
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .fullScreenCard {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: #0074D9;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 36px;
-      z-index: 999;
-    }
-
-    .reveal-btn {
-      font-size: 14px;
-      padding: 5px 10px;
-      background-color: #FFDC00;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .reveal-btn:hover {
-      background-color: #FF851B;
-    }
-
-    #teams {
-      display: flex;
-      justify-content: center;
-      gap: 50px;
-      margin: 20px 0;
-    }
-
-    .team {
-      background: #0074D9;
-      padding: 20px;
-      border-radius: 10px;
-      min-width: 150px;
-    }
-
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      background-color: #FFDC00;
-      border: none;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background-color: #FF851B;
-    }
-
-    #awardButtons {
-      margin-top: 20px;
-      display: none;
-    }
-
-    .edit-btn {
-      margin-top: 10px;
-      background-color: #39CCCC;
-    }
-
-    .edit-btn:hover {
-      background-color: #3D9970;
-    }
-
-    #timer {
-      margin-top: 20px;
-      font-size: 24px;
-    }
-
-    #timerButtons {
-      margin-top: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Pollution Jeopardy</title>
+    <style>
+        :root {
+            --jeopardy-blue: #3555A5;
+            --jeopardy-light-blue: #4A6BB8;
+            --jeopardy-yellow: #F5D76E;
+            --jeopardy-text: #FFFFFF;
+            --question-bg: #2A4880;
+            --unanswered-color: #E6917A;
+            --answered-opacity: 0.5;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1E2F4F;
+            color: var(--jeopardy-text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--jeopardy-blue);
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: var(--jeopardy-yellow);
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--jeopardy-blue);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .team-score {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .team-score h2 {
+            color: var(--jeopardy-yellow);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .score-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .score-btn {
+            background-color: var(--jeopardy-yellow);
+            color: var(--jeopardy-blue);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .score-btn:hover {
+            background-color: #FFD700;
+            transform: scale(1.05);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .category {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-yellow);
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+        }
+        
+        .question-card {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-yellow);
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease, opacity 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .question-card:hover {
+            transform: scale(1.05);
+            background-color: var(--jeopardy-light-blue);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        .question-card.unanswered {
+            background-color: var(--unanswered-color);
+            color: white;
+        }
+        
+        .question-card.answered {
+            opacity: var(--answered-opacity);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--question-bg);
+            color: white;
+            padding: 30px;
+            border: 3px solid var(--jeopardy-yellow);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            animation: modalFadeIn 0.4s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        @keyframes cardClick {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .question-text {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .answer-text {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--jeopardy-yellow);
+            text-align: center;
+            display: none;
+        }
+        
+        .modal-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            background-color: var(--jeopardy-yellow);
+            color: var(--jeopardy-blue);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn:hover {
+            background-color: #FFD700;
+            transform: scale(1.05);
+        }
+        
+        .timer-container {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .timer-bar {
+            height: 10px;
+            background-color: var(--jeopardy-yellow);
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+            transition: width 1s linear;
+        }
+        
+        .team-btns {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .team-award-btn {
+            background-color: var(--jeopardy-blue);
+            color: white;
+            border: 2px solid var(--jeopardy-yellow);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            flex: 1;
+        }
+        
+        .team-award-btn:hover {
+            background-color: var(--jeopardy-light-blue);
+            transform: scale(1.03);
+        }
+        
+        .custom-score-input {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+            gap: 5px;
+        }
+        
+        .custom-score-input input {
+            padding: 5px;
+            width: 100px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: var(--jeopardy-yellow);
+            color: var(--jeopardy-blue);
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .exit-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FF6347;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-
-  <h1>Stock Market Jeopardy</h1>
-
-  <div class="board" id="board"></div>
-
-  <div id="card" class="fullScreenCard" style="display: none;" onclick="handleCardClick()">
-    <div id="cardText"></div>
-  </div>
-
-  <script>
-    const categories = [
-      "Buying Stocks",
-      "Stock Market",
-      "Types of Orders",
-      "Mutual Funds",
-      "Bonds",
-      "500 Questions"
-    ];
-
-    const questions = {
-      "Buying Stocks": {
-        100: { q: "What do you need access to in order to buy stocks?", a: "Stock Exchange" },
-        200: { q: "What do you open to start buying stocks?", a: "Brokerage Account" },
-        300: { q: "What is the term for a company's stock name shortcut?", a: "Ticker Symbol" },
-        400: { q: "Who matches your stock order on the exchange?", a: "Broker" },
-        500: { q: "After your order matches, what happens?", a: "You own the stock" }
-      },
-      "Stock Market": {
-        100: { q: "What is a place where stocks are bought and sold?", a: "Stock Exchange" },
-        200: { q: "What are two major stock exchanges?", a: "NYSE, NASDAQ" },
-        300: { q: "When more people want to buy a stock, what happens to the price?", a: "It goes up" },
-        400: { q: "Name one risk of investing in stocks.", a: "Market Volatility" },
-        500: { q: "Name a reason why people invest in the stock market.", a: "Wealth Growth, Passive Income, Beating Inflation" }
-      },
-      "Types of Orders": {
-        100: { q: "What order type buys/sells at the best available price?", a: "Market Order" },
-        200: { q: "What order type only buys/sells at a set price or better?", a: "Limit Order" },
-        300: { q: "What order sells automatically at a certain price to prevent losses?", a: "Stop Order" },
-        400: { q: "What influences stock prices?", a: "Company performance, economy, sentiment" },
-        500: { q: "What is it called when you panic and sell at a loss?", a: "Emotional Investing" }
-      },
-      "Mutual Funds": {
-        100: { q: "Are you buying one stock or many in a mutual fund?", a: "Many" },
-        200: { q: "What do many people do with their money in a mutual fund?", a: "Pool it together" },
-        300: { q: "Who manages the mutual fund's investments?", a: "Professional Manager" },
-        400: { q: "What is a mutual fund compared to, for easy understanding?", a: "A buffet" },
-        500: { q: "What types of investments might a mutual fund include?", a: "Stocks, bonds, etc." }
-      },
-      "Bonds": {
-        100: { q: "What is a bond essentially?", a: "A loan" },
-        200: { q: "Who might you loan money to with a bond?", a: "Government or Company" },
-        300: { q: "What do you earn when you buy a bond?", a: "Interest" },
-        400: { q: "When do you get your money back from a bond?", a: "After a set period" },
-        500: { q: "What risk is involved with bonds?", a: "Interest" }
-      },
-      "500 Questions": {
-        500: { q: "Explain the main difference between a Market Order and a Limit Order.", a: "Market Order buys/sells immediately at best price; Limit Order sets a specific price." },
-        501: { q: "What emotional mistake do investors often make during a market drop?", a: "They panic and sell at a loss." },
-        502: { q: "Describe what a bond is and who typically issues them.", a: "A bond is a loan to a government or company that pays back interest over time." },
-        503: { q: "If investors panic and sell a stock all at once, what usually happens to the stock's price?", a: "It drops." },
-        504: { q: "What are two reasons investors might choose mutual funds instead of individual stocks?", a: "Diversification and professional management." }
-      }
-    };
-
-    let currentPoints = 0;
-    let showingAnswer = false;
-    let currentCell = null;
-    let currentCategory = null;
-    let currentKey = null;
-
-    function createBoard() {
-      const board = document.getElementById('board');
-      categories.forEach(cat => {
-        const header = document.createElement('div');
-        header.className = 'cell header';
-        header.innerText = cat;
-        board.appendChild(header);
-      });
-
-      for (let row = 0; row < 5; row++) {
-        categories.forEach(cat => {
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-
-          if (cat === "500 Questions") {
-            const questionKey = 500 + row;
-            cell.innerText = "500";
-            cell.onclick = () => showQuestion(cell, cat, questionKey);
-          } else {
-            const points = (row + 1) * 100;
-            cell.innerText = points;
-            cell.onclick = () => showQuestion(cell, cat, points);
-          }
-
-          board.appendChild(cell);
-        });
-      }
-    }
-
-    function showQuestion(cell, category, key) {
-      const qObj = questions[category][key] || { q: "Question not found", a: "" };
-      currentCell = cell;
-      currentCategory = category;
-      currentKey = key;
-      currentQ = qObj.q;
-      currentA = qObj.a;
-      showingAnswer = false;
-      document.getElementById('cardText').innerText = currentQ;
-      document.getElementById('card').style.display = 'flex';
-    }
-
-    function handleCardClick() {
-      if (!showingAnswer) {
-        document.getElementById('cardText').innerText = currentA;
-        showingAnswer = true;
-      } else {
-        document.getElementById('card').style.display = 'none';
-        if (currentCell) {
-          currentCell.innerHTML = "";
-          currentCell.onclick = null;
-
-          const wrapper = document.createElement("div");
-          wrapper.style.display = "flex";
-          wrapper.style.justifyContent = "center";
-          wrapper.style.alignItems = "center";
-          wrapper.style.height = "100%";
-
-          const revealBtn = document.createElement("button");
-          revealBtn.className = "reveal-btn";
-          revealBtn.innerText = "Reveal";
-          revealBtn.onclick = (e) => {
-            e.stopPropagation();
-            document.getElementById("cardText").innerText =
-              questions[currentCategory][currentKey].q + "\n\nAnswer: " + questions[currentCategory][currentKey].a;
-            document.getElementById("card").style.display = "flex";
-          };
-
-          wrapper.appendChild(revealBtn);
-          currentCell.appendChild(wrapper);
+    <div class="container">
+        <div class="header">
+            <h1>Air Pollution Jeopardy</h1>
+        </div>
+        
+        <div class="scoreboard">
+            <div class="team-score">
+                <h2>Team A</h2>
+                <div class="score-value" id="team-a-score">0</div>
+                <div class="score-controls">
+                    <button class="score-btn" onclick="adjustScore('a', -100)">-100</button>
+                    <button class="score-btn" onclick="adjustScore('a', 100)">+100</button>
+                    <button class="score-btn" onclick="showCustomScoreInput('a')">Edit+</button>
+                </div>
+                <div class="custom-score-input" id="team-a-custom">
+                    <input type="number" id="team-a-custom-value" placeholder="Enter score">
+                    <button class="score-btn" onclick="setCustomScore('a')">Set</button>
+                </div>
+            </div>
+            
+            <div class="team-score">
+                <h2>Team B</h2>
+                <div class="score-value" id="team-b-score">0</div>
+                <div class="score-controls">
+                    <button class="score-btn" onclick="adjustScore('b', -100)">-100</button>
+                    <button class="score-btn" onclick="adjustScore('b', 100)">+100</button>
+                    <button class="score-btn" onclick="showCustomScoreInput('b')">Edit+</button>
+                </div>
+                <div class="custom-score-input" id="team-b-custom">
+                    <input type="number" id="team-b-custom-value" placeholder="Enter score">
+                    <button class="score-btn" onclick="setCustomScore('b')">Set</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-board" id="game-board">
+            <!-- Categories and questions will be filled by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="modal" id="question-modal">
+        <div class="modal-content">
+            <button class="back-btn" id="back-btn" style="display: none;">← Back</button>
+            <button class="exit-btn" id="exit-btn">✕</button>
+            <div class="question-text" id="modal-question"></div>
+            <div class="answer-text" id="modal-answer"></div>
+            
+            <div class="timer-container">
+                <div id="timer">Time: 45s</div>
+                <div class="timer-bar" id="timer-bar"></div>
+                <button class="modal-btn" id="reset-timer-btn">Reset Timer</button>
+            </div>
+            
+            <div class="modal-controls">
+                <button class="modal-btn" id="show-answer-btn">Show Answer</button>
+            </div>
+            
+            <div class="team-btns" style="display: none;" id="team-award-btns">
+                <button class="team-award-btn" id="award-team-a">Award Team A</button>
+                <button class="team-award-btn" id="award-team-b">Award Team B</button>
+                <button class="team-award-btn" id="award-neither">Neither</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Game data
+        const categories = [
+            "Air Pollutants",
+            "Vehicle & Industrial Emissions",
+            "Air Pollution Control Methods",
+            "500 Questions"
+        ];
+        
+        const questions = [
+            // Air Pollutants
+            {
+                category: 0,
+                points: 100,
+                question: "What are the 6 criteria air pollutants identified by the Clean Air Act?",
+                answer: "SO₂, NOₓ, CO, PM, O₃, Pb",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 0,
+                points: 200,
+                question: "Which air pollutant forms when NO₂ is broken by sunlight and combines with O₂?",
+                answer: "Ozone (O₃)",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 0,
+                points: 300,
+                question: "Why is carbon monoxide dangerous to human health (blood cells)?",
+                answer: "It binds to hemoglobin in the blood and prevents oxygen transport, causing suffocation.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 0,
+                points: 400,
+                question: "What two pollutants are responsible for forming acid rain?",
+                answer: "SO₂ and NOₓ",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 0,
+                points: 500,
+                question: "How do secondary pollutants form, and name one example.",
+                answer: "They form when primary pollutants react with sunlight, water, or other chemicals. Example: Ozone (O₃).",
+                answered: false,
+                unanswered: false
+            },
+            
+            // Vehicle & Industrial Emissions
+            {
+                category: 1,
+                points: 100,
+                question: "What does CAFE in CAFE standards stand for?",
+                answer: "Corporate Average Fuel Economy",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 1,
+                points: 200,
+                question: "What is the role of a catalytic converter in a vehicle?",
+                answer: "It converts NOₓ, CO, and hydrocarbons into N₂, CO₂, O₂, and H₂O.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 1,
+                points: 300,
+                question: "Why was lead removed from gasoline after 1974?",
+                answer: "It damaged catalytic converters and was a neurotoxin.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 1,
+                points: 400,
+                question: "What device uses a negative charge to trap particles onto metal plates?",
+                answer: "Electrostatic Precipitator",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 1,
+                points: 500,
+                question: "How does a vapor recovery nozzle help reduce air pollution?",
+                answer: "It captures VOC vapors during refueling and sends them back into the underground storage tank.",
+                answered: false,
+                unanswered: false
+            },
+            
+            // Air Pollution Control Methods
+            {
+                category: 2,
+                points: 100,
+                question: "What is the function of crushed limestone in coal power plants?",
+                answer: "It reacts with SO₂ to form calcium sulfate, reducing emissions.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 2,
+                points: 200,
+                question: "What is fluidized bed combustion, and what are its benefits?",
+                answer: "It pumps air into the combustion bed, increasing contact between limestone and SO₂, while reducing NOₓ by burning at lower temperatures.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 2,
+                points: 300,
+                question: "How do dry scrubbers remove pollutants?",
+                answer: "They use chemicals like calcium oxide to neutralize gases like SO₂.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 2,
+                points: 400,
+                question: "What pollutant does a baghouse filter target, and how?",
+                answer: "Particulate matter (PM); it traps particles in large fabric bags.",
+                answered: false,
+                unanswered: false
+            },
+            {
+                category: 2,
+                points: 500,
+                question: "What are the two types of scrubbers, and how are they different?",
+                answer: "Dry scrubbers use chemical reactions to neutralize gases; wet scrubbers use water mist to trap gases and particles.",
+                answered: false,
+                unanswered: false
+            },
+            
+            // 500 Questions
+            {
+                category: 3,
+                points: 500,
+                question: "What are VOCs, and how do they contribute to photochemical smog?",
+                answer: "Volatile organic compounds (like gasoline vapors) that react with NO to form smog-forming oxidants.",
+                answered: false,
+                unanswered: false,
+                position: 0
+            },
+            {
+                category: 3,
+                points: 500,
+                question: "Explain why PM2.5 is more dangerous than PM10.",
+                answer: "PM2.5 is smaller, enters deeper into the lungs, and is more likely to cause chronic lung conditions.",
+                answered: false,
+                unanswered: false,
+                position: 1
+            },
+            {
+                category: 3,
+                points: 500,
+                question: "Describe how thermal inversion traps pollution near the ground.",
+                answer: "Cool air gets trapped under a layer of warm air, preventing normal upward convection, so pollutants build up near the surface.",
+                answered: false,
+                unanswered: false,
+                position: 2
+            },
+            {
+                category: 3,
+                points: 500,
+                question: "What is a pollution credit, and how does it reduce national emissions?",
+                answer: "It's a tradable permit allowing companies to pollute under a limit. If they pollute less, they can sell the credit to another company. This keeps total emissions under a cap.",
+                answered: false,
+                unanswered: false,
+                position: 3
+            },
+            {
+                category: 3,
+                points: 500,
+                question: "How does an electrostatic precipitator physically remove PM from emissions?",
+                answer: "It gives particles a negative charge and attracts them to positive plates, where they stick and later fall into a hopper.",
+                answered: false,
+                unanswered: false,
+                position: 4
+            }
+        ];
+        
+        // Game state
+        let scores = {
+            a: 0,
+            b: 0
+        };
+        
+        let currentQuestion = null;
+        let timerInterval = null;
+        let timeLeft = 45;
+        let answerShown = false;
+        
+        // Initialize game board
+        function initializeGameBoard() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+            
+            // Create a grid for our Jeopardy board
+            gameBoard.style.display = 'grid';
+            gameBoard.style.gridTemplateColumns = `repeat(${categories.length}, 1fr)`;
+            gameBoard.style.gridTemplateRows = 'auto repeat(5, 1fr)';
+            gameBoard.style.gap = '10px';
+            
+            // Add categories row
+            for (let i = 0; i < categories.length; i++) {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category';
+                categoryElement.textContent = categories[i];
+                gameBoard.appendChild(categoryElement);
+            }
+            
+            // Add question cards in rows by point value
+            const pointValues = [100, 200, 300, 400, 500];
+            
+            // For each point value (row)
+            for (let row = 0; row < pointValues.length; row++) {
+                const pointValue = pointValues[row];
+                
+                // For each category (column)
+                for (let col = 0; col < categories.length; col++) {
+                    let questionObj;
+                    
+                    // For the 500 Questions category, always use 500 points
+                    if (col === 3) { // 500 Questions category (4th column, index 3)
+                        // Find the 500 Questions card for this position
+                        const positionToFind = row;
+                        questionObj = questions.find(q => 
+                            q.category === col && 
+                            q.points === 500 && 
+                            q.position === positionToFind
+                        );
+                    } else {
+                        // Regular category - find the question matching this point value
+                        questionObj = questions.find(q => q.category === col && q.points === pointValue);
+                    }
+                    
+                    // Create the card
+                    if (questionObj) {
+                        const questionCard = document.createElement('div');
+                        questionCard.className = 'question-card';
+                        
+                        if (questionObj.unanswered) {
+                            questionCard.classList.add('unanswered');
+                            questionCard.textContent = 'Unanswered';
+                        } else if (questionObj.answered) {
+                            questionCard.classList.add('answered');
+                            questionCard.textContent = '$' + questionObj.points;
+                        } else {
+                            questionCard.textContent = '$' + questionObj.points;
+                        }
+                        
+                        questionCard.addEventListener('click', () => openQuestion(questionObj));
+                        gameBoard.appendChild(questionCard);
+                    }
+                }
+            }
         }
-      }
-    }
-
-    createBoard();
-  </script>
-
+        
+        // Open question modal
+        function openQuestion(question) {
+            // Apply animation to clicked card
+            const cards = document.querySelectorAll('.question-card');
+            let matchingCard = null;
+            
+            cards.forEach(card => {
+                if (card.textContent === '$' + question.points || 
+                    (card.textContent === 'Unanswered' && question.unanswered)) {
+                    card.style.animation = 'cardClick 0.3s ease-out';
+                    matchingCard = card;
+                    setTimeout(() => {
+                        if (card) card.style.animation = '';
+                    }, 300);
+                }
+            });
+            
+            // Wait for the animation before showing modal
+            setTimeout(() => {
+                currentQuestion = question;
+                modalQuestion.textContent = question.question;
+                modalAnswer.textContent = question.answer;
+                modalAnswer.style.display = 'none';
+                showAnswerBtn.style.display = 'block';
+                teamAwardBtns.style.display = 'none';
+                backBtn.style.display = 'none';
+                answerShown = false;
+                
+                // Start timer
+                startTimer();
+                
+                // Show modal
+                questionModal.style.display = 'block';
+            }, 150);
+        }
+        
+        // Close the modal
+        function closeModal() {
+            questionModal.style.display = 'none';
+            clearInterval(timerInterval);
+        }
+        
+        // Show answer
+        function showAnswer() {
+            modalAnswer.style.display = 'block';
+            showAnswerBtn.style.display = 'none';
+            teamAwardBtns.style.display = 'flex';
+            backBtn.style.display = 'block';
+            answerShown = true;
+        }
+        
+        // Award points to team
+        function awardPoints(team) {
+            if (team === 'a' || team === 'b') {
+                scores[team] += currentQuestion.points;
+                document.getElementById(`team-${team}-score`).textContent = scores[team];
+                currentQuestion.answered = true;
+            }
+            
+            if (team === 'neither') {
+                currentQuestion.unanswered = true;
+            }
+            
+            closeModal();
+            initializeGameBoard(); // Refresh the board
+        }
+        
+        // Adjust score manually
+        function adjustScore(team, amount) {
+            scores[team] += amount;
+            document.getElementById(`team-${team}-score`).textContent = scores[team];
+        }
+        
+        // Show custom score input
+        function showCustomScoreInput(team) {
+            const customScoreInput = document.getElementById(`team-${team}-custom`);
+            customScoreInput.style.display = customScoreInput.style.display === 'flex' ? 'none' : 'flex';
+        }
+        
+        // Set custom score
+        function setCustomScore(team) {
+            const input = document.getElementById(`team-${team}-custom-value`);
+            const value = parseInt(input.value);
+            
+            if (!isNaN(value)) {
+                scores[team] = value;
+                document.getElementById(`team-${team}-score`).textContent = value;
+                input.value = '';
+                document.getElementById(`team-${team}-custom`).style.display = 'none';
+            }
+        }
+        
+        // Start timer
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 45;
+            timerElement.textContent = `Time: ${timeLeft}s`;
+            timerBar.style.width = '100%';
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const percentage = (timeLeft / 45) * 100;
+                timerElement.textContent = `Time: ${timeLeft}s`;
+                timerBar.style.width = `${percentage}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = 'Time\'s up!';
+                    timerBar.style.width = '0%';
+                }
+            }, 1000);
+        }
+        
+        // Reset timer
+        function resetTimer() {
+            clearInterval(timerInterval);
+            startTimer();
+        }
+        
+        // DOM elements
+        const questionModal = document.getElementById('question-modal');
+        const modalQuestion = document.getElementById('modal-question');
+        const modalAnswer = document.getElementById('modal-answer');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const awardTeamA = document.getElementById('award-team-a');
+        const awardTeamB = document.getElementById('award-team-b');
+        const awardNeither = document.getElementById('award-neither');
+        const teamAwardBtns = document.getElementById('team-award-btns');
+        const timerElement = document.getElementById('timer');
+        const timerBar = document.getElementById('timer-bar');
+        const resetTimerBtn = document.getElementById('reset-timer-btn');
+        const backBtn = document.getElementById('back-btn');
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the game board
+            initializeGameBoard();
+            
+            // Exit button
+            exitBtn.addEventListener('click', closeModal);
+            
+            // Show answer button
+            showAnswerBtn.addEventListener('click', showAnswer);
+            
+            // Award team buttons
+            awardTeamA.addEventListener('click', () => awardPoints('a'));
+            awardTeamB.addEventListener('click', () => awardPoints('b'));
+            awardNeither.addEventListener('click', () => awardPoints('neither'));
+            
+            // Reset timer button
+            resetTimerBtn.addEventListener('click', resetTimer);
+            
+            // Back button
+            backBtn.addEventListener('click', () => {
+                modalAnswer.style.display = 'none';
+                showAnswerBtn.style.display = 'block';
+                teamAwardBtns.style.display = 'none';
+                backBtn.style.display = 'none';
+                answerShown = false;
+            });
+            
+            // Space bar to show answer
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && questionModal.style.display === 'block' && !answerShown) {
+                    showAnswer();
+                    e.preventDefault();
+                }
+            });
+            
+            // Click on modal background to show answer
+            questionModal.addEventListener('click', (e) => {
+                if (e.target === questionModal && !answerShown) {
+                    showAnswer();
+                }
+            });
+            
+            // Prevent clicks on modal content from triggering the modal background click
+            document.querySelector('.modal-content').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    </script>
 </body>
 </html>
